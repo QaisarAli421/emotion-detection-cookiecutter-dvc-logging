@@ -1,3 +1,17 @@
+Emotion Detection — DVC ML Pipeline
+
+An end-to-end Emotion Detection machine learning project that classifies tweets into two emotions:
+
+Happiness
+
+Sadness
+
+The project demonstrates a reproducible ML workflow using Python, scikit-learn, DVC, YAML-based configuration, logging, TF-IDF feature engineering, and Gradient Boosting.
+
+Project Overview
+
+The pipeline takes raw tweet emotion data, preprocesses the text, converts the text into numerical TF-IDF features, trains a Gradient Boosting classifier, and evaluates the model using standard classification metrics.
+
 emotion-detection
 ==============================
 
