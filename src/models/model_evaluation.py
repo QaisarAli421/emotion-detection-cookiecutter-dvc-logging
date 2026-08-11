@@ -5,6 +5,8 @@ import json
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
 import logging
 
+import os
+
 # logging configuration
 logger = logging.getLogger('model_evaluation')
 logger.setLevel('DEBUG')
@@ -53,12 +55,30 @@ def evaluate_model(clf, X_test: np.ndarray, y_test: np.ndarray) -> dict:
     """Evaluate the model and return the evaluation metrics."""
     try:
         y_pred = clf.predict(X_test)
-        y_pred_proba = clf.predict_proba(X_test)[:, 1]
+
+        happiness_index = list(clf.classes_).index('happiness')
+        y_pred_proba = clf.predict_proba(X_test)[:, happiness_index]
 
         accuracy = accuracy_score(y_test, y_pred)
-        precision = precision_score(y_test, y_pred)
-        recall = recall_score(y_test, y_pred)
-        auc = roc_auc_score(y_test, y_pred_proba)
+
+        precision = precision_score(
+            y_test,
+            y_pred,
+            pos_label='happiness'
+        )
+
+        recall = recall_score(
+            y_test,
+            y_pred,
+            pos_label='happiness'
+        )
+
+        y_test_binary = (y_test == 'happiness').astype(int)
+
+        auc = roc_auc_score(
+            y_test_binary,
+            y_pred_proba
+        )
 
         metrics_dict = {
             'accuracy': accuracy,
@@ -66,18 +86,24 @@ def evaluate_model(clf, X_test: np.ndarray, y_test: np.ndarray) -> dict:
             'recall': recall,
             'auc': auc
         }
+
         logger.debug('Model evaluation metrics calculated')
+
         return metrics_dict
+
     except Exception as e:
         logger.error('Error during model evaluation: %s', e)
         raise
-
 def save_metrics(metrics: dict, file_path: str) -> None:
     """Save the evaluation metrics to a JSON file."""
     try:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
         with open(file_path, 'w') as file:
             json.dump(metrics, file, indent=4)
+
         logger.debug('Metrics saved to %s', file_path)
+
     except Exception as e:
         logger.error('Error occurred while saving the metrics: %s', e)
         raise
